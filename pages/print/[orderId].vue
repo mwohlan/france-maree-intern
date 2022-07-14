@@ -20,15 +20,6 @@ const { data: orderItems } = await useAsyncData('order-items', async () => {
 definePageMeta({
   layout: 'print',
 })
-console.time('pdf')
-const { data } = await useFetch<Blob>('https://v2.api2pdf.com/chrome/pdf/url?url=https://timelino.vercel.app/&apikey=2aac5c19-3e35-4359-8008-04a9dc76b2b0', { server: false })
-console.timeEnd('pdf')
-const link = ref<HTMLAnchorElement>()
-
-// whenever(() => pending.value === false, () => {
-//   link.value.href = window.URL.createObjectURL(data.value)
-//   link.value.download = 'timelino.pdf'
-// })
 </script>
 
 <template>
