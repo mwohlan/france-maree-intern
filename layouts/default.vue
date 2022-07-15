@@ -1,8 +1,9 @@
 <template>
   <main flex font-mulish h-full>
+    <NuxtLoadingIndicator />
     <Link rel="icon" type="image/x-icon" href="/favicon.svg" />
     <TheSidebar />
-    <div of-hidden flex flex-col flex-1>
+    <div flex flex-col flex-1>
       <slot />
       <TheFooter class="min-h-5%" shrink-0 flex items-center px-8 />
     </div>

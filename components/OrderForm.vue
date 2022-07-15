@@ -4,10 +4,41 @@ const client = useSupabaseClient()
 const { orderItems, selectedSupplier, activeOrderId, isSaving } = storeToRefs(store)
 
 store.getOrderItems()
+
+const pending = ref(true)
+
+const link = ref<HTMLAnchorElement>()
+
+const fetchPdf = async () => {
+  if (pending.value) {
+    console.log('hello');
+    const { data } = await useFetch<Blob>('https://v2.api2pdf.com/chrome/pdf/url', {
+      initialCache: false,
+      server: false,
+      method: 'POST',
+      body: {
+        url: `https://prismatic-cendol-6d0805.netlify.app/print/${activeOrderId.value}`,
+        options: {
+          puppeteerWaitForMethod: 'WaitForSelector',
+          puppeteerWaitForValue: 'td',
+        },
+
+      },
+      headers: {
+        Authorization: '2aac5c19-3e35-4359-8008-04a9dc76b2b0',
+      },
+    })
+
+    console.log(data.value)
+    link.value.href = data.value.FileUrl
+    link.value.download = 'timelino.pdf'
+    pending.value = false
+  }
+}
 </script>
 
 <template>
-  <div border h-fit rounded-xl border-gray-300 rounded p-3 w="50%">
+  <div border h-fit rounded-xl border-gray-300 rounded p-3 w="50%" @click="fetchPdf">
     <div class="flex justify-center items-center gap-x-4 mb-3">
       <h2 w-fit max-w-30 font-bold text-xl text-sky-600>
         Bestellung bei {{ selectedSupplier?.name }}
@@ -17,7 +48,7 @@ store.getOrderItems()
       <div v-else-if="activeOrderId && !isSaving" w-7 h-7 bg-sky-400 i-heroicons-outline:badge-check />
     </div>
 
-    <div rounded-md border-sky-400>
+    <div rounded-md border-sky-400 mb-10>
       <table class="divide-y w-full divide-sky-300">
         <thead class="bg-sky-200">
           <tr>
@@ -42,6 +73,7 @@ store.getOrderItems()
         </tbody>
       </table>
     </div>
+    <a ref="link" w-10 ml-auto bg-sky-400 text-white @click="fetchPdf">{{ pending ? 'wait' : 'Download' }}</a>
   </div>
 </template>
 
