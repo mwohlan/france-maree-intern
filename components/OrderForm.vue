@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const store = useOrderStore()
 const client = useSupabaseClient()
-const { orderItems, selectedSupplier, activeOrderId, isSaving } = storeToRefs(store)
+const { orderItems, selectedSupplier, activeOrder, isSaving } = storeToRefs(store)
 
 store.getOrderItems()
 
@@ -11,13 +11,14 @@ const link = ref<HTMLAnchorElement>()
 
 const fetchPdf = async () => {
   if (pending.value) {
-    console.log('hello');
     const { data } = await useFetch<Blob>('https://v2.api2pdf.com/chrome/pdf/url', {
       initialCache: false,
       server: false,
       method: 'POST',
       body: {
-        url: `https://prismatic-cendol-6d0805.netlify.app/print/${activeOrderId.value}`,
+        url: `https://prismatic-cendol-6d0805.netlify.app/print/${activeOrder.value?.id}`,
+        inline: false,
+        fileName: `Bestellung bei ${selectedSupplier.value?.name} vom ${new Date().toLocaleString('de-DE', { dateStyle: 'short' })}.pdf`,
         options: {
           puppeteerWaitForMethod: 'WaitForSelector',
           puppeteerWaitForValue: 'td',
@@ -31,21 +32,21 @@ const fetchPdf = async () => {
 
     console.log(data.value)
     link.value.href = data.value.FileUrl
-    link.value.download = 'timelino.pdf'
     pending.value = false
   }
 }
+fetchPdf()
 </script>
 
 <template>
-  <div border h-fit rounded-xl border-gray-300 rounded p-3 w="50%" @click="fetchPdf">
+  <div border h-fit rounded-xl border-gray-300 rounded p-3 w="50%">
     <div class="flex justify-center items-center gap-x-4 mb-3">
-      <h2 w-fit max-w-30 font-bold text-xl text-sky-600>
+      <h2 w-fit font-bold text-xl text-sky-600>
         Bestellung bei {{ selectedSupplier?.name }}
       </h2>
 
       <div v-if="isSaving" animate-spin w-7 h-7 bg-sky-400 i-heroicons-outline:refresh />
-      <div v-else-if="activeOrderId && !isSaving" w-7 h-7 bg-sky-400 i-heroicons-outline:badge-check />
+      <div v-else-if="activeOrder?.id && !isSaving" w-7 h-7 bg-sky-400 i-heroicons-outline:badge-check />
     </div>
 
     <div rounded-md border-sky-400 mb-10>
@@ -73,7 +74,16 @@ const fetchPdf = async () => {
         </tbody>
       </table>
     </div>
-    <a ref="link" w-10 ml-auto bg-sky-400 text-white @click="fetchPdf">{{ pending ? 'wait' : 'Download' }}</a>
+    <div flex justify-between items-center>
+      <a ref="link" flex justify-center shadow download="hello.pdf" target="_blank" w-fit min-w-26 px-3 py-2 rounded-md bg-sky-400 text-white @click="fetchPdf"> <div v-if="pending" animate-spin w-5 h-5 bg-white i-heroicons-outline:refresh /> <div v-else font-semibold>Download</div></a>
+      <div
+        px-2 cursor-pointer
+        rounded-lg shadow :class="activeOrder?.status === 'Abgeschlossen' ? 'bg-green-300 text-green-800' : 'bg-yellow-300 text-yellow-800'"
+        @click="store.toggleOrderStatus()"
+      >
+        Status: {{ activeOrder?.status }}
+      </div>
+    </div>
   </div>
 </template>
 

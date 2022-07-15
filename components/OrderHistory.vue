@@ -1,5 +1,6 @@
 <script lang="ts"  setup>
-const { selectedSupplier, activeOrderId } = storeToRefs(useOrderStore())
+const store = useOrderStore()
+const { selectedSupplier, activeOrder } = storeToRefs(store)
 
 const client = useSupabaseClient()
 const { data: orders } = await useAsyncData('orders', async () => {
@@ -26,7 +27,7 @@ const { data: orders } = await useAsyncData('orders', async () => {
         <li
           v-for="order in orders" :key="order.id" border-1 space-y-2 cursor-pointer rounded-md border-gray-300 hover:bg-gray-200
           px-2 py-4
-          @click="activeOrderId = order.id; selectedSupplier = { id: order.supplier_id, name: order.name, updated_at: order.updated_at, created_at: order.updated_at }"
+          @click="store.selectOrder(order)"
         >
           <div flex justify-between items-center gap-x-6>
             <div>{{ order.name }}</div>

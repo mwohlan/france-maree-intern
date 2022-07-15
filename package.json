@@ -20,7 +20,7 @@
     "@vueuse/nuxt": "^8.9.3",
     "eslint": "^8.19.0",
     "fuse.js": "^6.6.2",
-    "nuxt": "^3.0.0-rc.5",
+    "nuxt": "npm:nuxt3@latest",
     "pinia": "2.0.16",
     "typescript": "^4.7.4"
   }

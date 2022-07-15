@@ -1,5 +1,5 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import type { Order, OrderItem, Product, Supplier } from '~~/types'
+import type { Order, OrderHistory, OrderItem, Product, Supplier } from '~~/types'
 
 export const useOrderStore = defineStore('order', () => {
   const client = useSupabaseClient()
@@ -8,17 +8,9 @@ export const useOrderStore = defineStore('order', () => {
 
   const orderItems = ref<OrderItem[]>([])
 
-  const activeOrderId = ref<number>(0)
+  const activeOrder = ref<Order | null>()
 
   const isSaving = ref(false)
-
-  function setActiveOrderId(id: number) {
-    activeOrderId.value = id
-  }
-
-  function resetActiveOrderId() {
-    activeOrderId.value = 0
-  }
 
   function resetSelectedSupplier() {
     selectedSupplier.value = undefined
@@ -41,10 +33,34 @@ export const useOrderStore = defineStore('order', () => {
     }
   }
 
+  const selectOrder = (order: OrderHistory) => {
+    activeOrder.value = { id: order.id, supplier_id: order.supplier_id, status: order.status, updated_at: order.updated_at, created_at: order.created_at }
+
+    selectedSupplier.value = { id: order.supplier_id, name: order.name, updated_at: order.updated_at, created_at: order.updated_at }
+  }
+
+  const toggleOrderStatus = async () => {
+    try {
+      const { data, error } = await client.from<Order>('order').upsert({
+        id: activeOrder.value?.id,
+        status: activeOrder.value?.status === 'Offen' ? 'Abgeschlossen' : 'Offen',
+        supplier_id: activeOrder.value?.supplier_id,
+        updated_at: new Date().toISOString(),
+      }).single()
+      activeOrder.value = data
+
+      if (error)
+        throw error
+    }
+    catch (err) {
+      console.error('OrderStore:toggleOrderStatus failed', err)
+    }
+  }
+
   async function getOrderItems() {
     try {
       const { data, error } = await client.from<OrderItem>('order_item').select('*,product(*)')
-        .eq('order_id', activeOrderId.value)
+        .eq('order_id', activeOrder.value?.id)
 
       console.log(data)
 
@@ -66,7 +82,7 @@ export const useOrderStore = defineStore('order', () => {
         updated_at: new Date().toISOString(),
         amount: 1,
         unit: 'Anzahl',
-        order_id: activeOrderId.value,
+        order_id: activeOrder.value?.id,
         weight: 0,
         product,
         price: product.price ? product.price : null,
@@ -78,7 +94,7 @@ export const useOrderStore = defineStore('order', () => {
       updated_at: new Date().toISOString(),
       amount: 1,
       unit: 'Anzahl',
-      order_id: activeOrderId.value,
+      order_id: activeOrder.value?.id,
       weight: 0,
       price: product.price ? product.price : null,
     }
@@ -90,7 +106,7 @@ export const useOrderStore = defineStore('order', () => {
         supplier_id: selectedSupplier.value?.id,
         status: 'Offen',
       }).single()
-      activeOrderId.value = data?.id ?? 0
+      activeOrder.value = data
 
       if (error)
         throw error
@@ -102,7 +118,7 @@ export const useOrderStore = defineStore('order', () => {
   const addToOrderItems = async (product: Product) => {
     try {
       isSaving.value = true
-      if (!activeOrderId.value)
+      if (!activeOrder.value?.id)
         await createOrder()
 
       const orderItem = transFormProduct(product, false)
@@ -132,7 +148,6 @@ export const useOrderStore = defineStore('order', () => {
   }
 
   function resetAll() {
-    resetActiveOrderId()
     resetSelectedSupplier()
     resetSelectedProducts()
   }
@@ -140,9 +155,7 @@ export const useOrderStore = defineStore('order', () => {
   return {
     selectedSupplier,
     orderItems,
-    activeOrderId,
-    setActiveOrderId,
-    resetActiveOrderId,
+    activeOrder,
     resetSelectedSupplier,
     resetSelectedProducts,
     resetAll,
@@ -151,6 +164,8 @@ export const useOrderStore = defineStore('order', () => {
     deleteOrderItem,
     addToOrderItems,
     getOrderItems,
+    selectOrder,
+    toggleOrderStatus,
     isSaving,
   }
 })

@@ -57,9 +57,9 @@ const filteredProducts = computed(() => {
           </div>
         </li>
         <li v-for="product in filteredProducts" :key="product.id" @click="emit('update:selectedProduct', product)">
-          <div font-semibold p-2 border rounded shadow border-gray-300 cursor-pointer duration-150 hover:bg-gray-200 :class="[{ '!bg-gray-400': product.id === selectedProduct?.id }]">
-            <div>{{ product.description }}</div>
-            <div w-fit ml-auto>
+          <div p-2 border rounded shadow border-gray-300 cursor-pointer duration-150 hover:bg-gray-200 :class="[{ '!bg-gray-400': product.id === selectedProduct?.id }]">
+            <div font-medium text-gray-800>{{ product.description }}</div>
+            <div text-gray-600 text-sm font-medium w-fit ml-auto>
               {{ product?.supplier?.name }}
             </div>
           </div>

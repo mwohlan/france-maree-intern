@@ -1,11 +1,13 @@
 <script lang="ts" setup>
-import type { OrderItem } from '~~/types'
+import type { Order, OrderItem } from '~~/types'
 
 const route = useRoute()
 const client = useSupabaseClient()
+
+// fetch name of the supplier
 const { data: orderItems } = await useAsyncData('order-items', async () => {
   try {
-    const { data, error } = await client.from<OrderItem>('order_item').select('*,product(*)')
+    const { data, error } = await client.from<OrderItem>('order_item').select('*,product(*)').order('order_id', { ascending: false })
       .eq('order_id', route.params.orderId as string)
 
     if (error)
@@ -13,9 +15,21 @@ const { data: orderItems } = await useAsyncData('order-items', async () => {
     return data
   }
   catch (error) {
-    console.error('OrderStore: getOrderItems failed', error)
+    console.error('Print: getOrderItems failed', error)
   }
 })
+const { data: order } = await useAsyncData('order', async () => {
+  try {
+    const { data, error } = await client.from<Order>('order').select('*,supplier(*)').eq('id', orderItems.value[0]?.id).single()
+    if (error)
+      throw error
+    return data
+  }
+  catch (error) {
+    console.error('Supplier', error)
+  }
+})
+
 
 definePageMeta({
   layout: 'print',
@@ -26,7 +40,7 @@ definePageMeta({
   <div border h-fit rounded-xl border-gray-300 rounded p-3 w-full>
     <div class="flex justify-center items-center gap-x-4 mb-3">
       <h2 w-fit font-bold text-xl text-sky-600>
-        Bestellung bei Hans Wurst
+        Bestellung bei {{ order.supplier?.name }}
       </h2>
     </div>
 
@@ -60,7 +74,7 @@ definePageMeta({
                 <div v-if="orderItem.unit === 'kg'" w-fit class="group" relative>
                   {{ orderItem.weight }}
                 </div>
-                <div> {{ orderItem.unit}}</div>
+                <div> {{ orderItem.unit }}</div>
               </td>
               <td :class="{ 'rounded-br-md': index === orderItems?.length ?? 0 - 1 }" class="px-2 py-2 relative text-gray-900">
                 <div>{{ orderItem?.price ? orderItem.price : '-' }}</div>

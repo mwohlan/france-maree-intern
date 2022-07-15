@@ -28,6 +28,7 @@ export interface Order {
 export interface OrderHistory {
   id: number
   updated_at: string
+  created_at: string
   supplier_id: number
   name: string
   orderItemCount: number
