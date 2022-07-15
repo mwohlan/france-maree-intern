@@ -7,7 +7,7 @@ const client = useSupabaseClient()
 // fetch name of the supplier
 const { data: orderItems } = await useAsyncData('order-items', async () => {
   try {
-    const { data, error } = await client.from<OrderItem>('order_item').select('*,product(*)').order('order_id', { ascending: false })
+    const { data, error } = await client.from<OrderItem>('order_item').select('*,product(*)')
       .eq('order_id', route.params.orderId as string)
 
     if (error)
