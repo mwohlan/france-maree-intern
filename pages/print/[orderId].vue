@@ -38,10 +38,11 @@ definePageMeta({
 
 <template>
   <div border h-fit rounded-xl border-gray-300 rounded p-3 w-full>
-    <div class="flex justify-center items-center gap-x-4 mb-3">
+    <div class="flex justify-center  gap-x-4 mb-3">
       <h2 w-fit font-bold text-xl text-sky-600>
         Bestellung bei {{ order.supplier?.name }}
       </h2>
+      <div self-end font-bold text-xs  text-sky-600>vom {{new Date().toLocaleString('de-DE', {dateStyle:'full'})}}</div>
     </div>
 
     <div rounded-md border-sky-400>
