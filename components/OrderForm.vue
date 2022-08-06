@@ -28,10 +28,13 @@ const fetchPdf = async () => {
         options: {
           puppeteerWaitForMethod: 'WaitForSelector',
           puppeteerWaitForValue: 'td',
+          width: '8.27in',
+          height: '11.69in',
           marginTop: '.2in',
           marginBottom: '.2in',
           marginLeft: '.2in',
           marginRight: '.2in',
+          scale: 1,
         },
 
       },
@@ -58,7 +61,9 @@ watchEffect(() => {
     // a.click()
     // clicked.value = false
     // a.remove()
+    console.log('object')
     window.open(link.value, '_blank', 'popup,width=600,height=800')
+    clicked.value = false
   }
 },
 

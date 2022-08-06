@@ -12,8 +12,8 @@ html, body , #__nuxt{
   margin: 0;
   padding: 0;
 }
-#content{
+/* #content{
         width: 21cm;
         height: 29.7cm;
-   }
+   } */
 </style>
