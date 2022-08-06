@@ -20,13 +20,13 @@ const { data: orderItems } = await useAsyncData('order-items', async () => {
 })
 const { data: order } = await useAsyncData('order', async () => {
   try {
-    const { data, error } = await client.from<Order>('order').select('*,supplier(*)').eq('id', orderItems.value[0]?.id).single()
+    const { data, error } = await client.from<Order>('order').select('*,supplier(*)').eq('id', route.params.orderId as string).single()
     if (error)
       throw error
     return data
   }
   catch (error) {
-    console.error('Supplier', error)
+    console.error('Print: Fetching Supplier Failed', error)
   }
 })
 
@@ -37,6 +37,7 @@ definePageMeta({
 
 <template>
   <div border h-fit rounded-xl border-gray-300 rounded p-3 w-full>
+    <img max-h-10 src="/francemaree.jpg">
     <div class="flex justify-center  gap-x-4 mb-3">
       <h2 w-fit font-bold text-xl text-sky-600>
         Bestellung bei {{ order?.supplier?.name }}
@@ -79,7 +80,7 @@ definePageMeta({
                 <div> {{ orderItem.unit }}</div>
               </td>
               <td :class="{ 'rounded-br-md': index === orderItems?.length ?? 0 - 1 }" class="px-2 py-2 relative text-gray-900">
-                <div>{{ orderItem?.price ? orderItem.price : '-' }}</div>
+                <div>{{ orderItem?.price ? `${orderItem.price}€` : '-' }}</div>
               </td>
               <td :class="{ 'rounded-br-md': index === orderItems?.length ?? 0 - 1 }" class="px-2 py-2 relative text-gray-900">
                 <div>{{ orderItem.product?.description }}</div>

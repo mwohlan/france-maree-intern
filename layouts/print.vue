@@ -1,16 +1,19 @@
 <script lang="ts" setup></script>
 
 <template>
-  <div id="content">
+  <div id="content" w-full mx-auto>
     <slot />
   </div>
 </template>
 
 <style>
+html, body , #__nuxt{
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
 #content{
         width: 21cm;
         height: 29.7cm;
-        margin: 10mm 20mm 10mm 20mm;
-
    }
 </style>

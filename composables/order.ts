@@ -12,12 +12,17 @@ export const useOrderStore = defineStore('order', () => {
 
   const isSaving = ref(false)
 
+
   function resetSelectedSupplier() {
     selectedSupplier.value = undefined
   }
 
   function resetSelectedProducts() {
     orderItems.value = []
+  }
+
+  function resetActiveOrder() {
+    activeOrder.value = null
   }
 
   async function updateOrderItem(index: number, orderItem: OrderItem) {
@@ -150,6 +155,7 @@ export const useOrderStore = defineStore('order', () => {
   function resetAll() {
     resetSelectedSupplier()
     resetSelectedProducts()
+    resetActiveOrder()
   }
 
   return {

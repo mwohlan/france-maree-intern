@@ -1,4 +1,6 @@
 <script lang="ts"  setup>
+import type { OrderHistory } from '~~/types/index.js'
+
 const store = useOrderStore()
 const { selectedSupplier, activeOrder } = storeToRefs(store)
 
@@ -27,30 +29,55 @@ const { data: orders } = await useAsyncData('orders', async () => {
         <li
           v-for="order in orders" :key="order.id" border-1 space-y-2 cursor-pointer rounded-md border-gray-300 hover:bg-gray-200
           px-2 py-4
-          @click="store.selectOrder(order)"
         >
-          <div flex justify-between items-center gap-x-6>
-            <div>{{ order.name }}</div>
-            <div shadow bg-gray-200 px-2 rounded-md text-gray-600 font-semibold text-sm>
-              {{ order.orderitemcount }} Positionen
+          <NuxtLink :to="`Bestellungen/${order.id}`" @click="store.selectOrder(order)">
+            <div flex justify-between items-center gap-x-6>
+              <div>{{ order.name }}</div>
+              <div shadow bg-gray-200 px-2 rounded-md text-gray-600 font-semibold text-sm>
+                {{ order.orderitemcount }} Positionen
+              </div>
             </div>
-          </div>
-          <div text-gray-600 text-sm flex justify-between>
-            <div
-              px-2 rounded-lg shadow
-              :class="order.status === 'Abgeschlossen' ? 'bg-green-300 text-green-800' : 'bg-yellow-300 text-yellow-800'"
-            >
-              Status: {{ order.status }}
+            <div text-gray-600 text-sm flex justify-between>
+              <div
+                px-2 rounded-lg shadow
+                :class="order.status === 'Abgeschlossen' ? 'bg-green-300 text-green-800' : 'bg-yellow-300 text-yellow-800'"
+              >
+                Status: {{ order.status }}
+              </div>
+              <VTooltip theme="light">
+                <div>
+                  {{ useGermanTimeAgo(new Date(order.updated_at)).value }}
+                </div>
+                <template #popper>
+                  <div text-red-500 font-bold>
+                    {{ new Date(order.updated_at).toLocaleString('de-DE', { dateStyle: 'full', timeStyle: 'medium' }) }}
+                  </div>
+                </template>
+              </VTooltip>
             </div>
-            <div>{{ new Date(order.updated_at).toLocaleString('De-de', { dateStyle: 'full' }) }}</div>
-          </div>
+          </NuxtLink>
         </li>
       </ul>
     </div>
   </div>
 </template>
 
-<style scoped>
+<style>
+.v-popper--theme-light .v-popper__inner {
+  background: #ebebeb;
+  color: #4f4f4f;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+}
+
+.v-popper--theme-light .v-popper__arrow-outer {
+  border-color: #ebebeb;
+}
+
+.v-popper--theme-light .v-popper__arrow-inner {
+  visibility: hidden;
+}
 #comboscroll::-webkit-scrollbar-track
 {
 

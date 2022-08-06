@@ -1,17 +1,23 @@
 <script lang="ts" setup>
+import type { OrderItem } from '~~/types/index.js'
+
 const store = useOrderStore()
 const client = useSupabaseClient()
 const { orderItems, selectedSupplier, activeOrder, isSaving } = storeToRefs(store)
+const pending = ref(false)
+const clicked = ref(false)
+const localOrderItems = ref<OrderItem[]>([])
+const loading = computed(() => pending.value && clicked.value)
+if (activeOrder.value?.id)
+  store.getOrderItems()
 
-store.getOrderItems()
+const link = ref<string>()
 
-const pending = ref(true)
-
-const link = ref<HTMLAnchorElement>()
-
+const refetchNeeded = computed(() => !(JSON.stringify(localOrderItems.value) === JSON.stringify(orderItems.value)))
 const fetchPdf = async () => {
-  if (pending.value) {
-    const { data } = await useFetch<Blob>('https://v2.api2pdf.com/chrome/pdf/url', {
+  if (!clicked.value && refetchNeeded.value) {
+    pending.value = true
+    const { data, error } = await useFetch('https://v2.api2pdf.com/chrome/pdf/url', {
       initialCache: false,
       server: false,
       method: 'POST',
@@ -29,13 +35,32 @@ const fetchPdf = async () => {
         Authorization: '2aac5c19-3e35-4359-8008-04a9dc76b2b0',
       },
     })
+    if (data.value)
+      link.value = data.value.FileUrl
 
-    console.log(data.value)
-    link.value.href = data.value.FileUrl
     pending.value = false
+    localOrderItems.value = [...orderItems.value]
   }
 }
-fetchPdf()
+
+watchEffect(() => {
+  if (clicked.value && !refetchNeeded.value) {
+    const a = document.createElement('a')
+    a.style.display = 'none'
+    a.href = link.value
+    // the filename you want
+    document.body.appendChild(a)
+    a.click()
+    clicked.value = false
+    a.remove()
+  }
+},
+
+)
+
+watch(() => activeOrder.value?.id, () => {
+
+}, { immediate: true })
 </script>
 
 <template>
@@ -59,7 +84,7 @@ fetchPdf()
             <th scope="col" class="pl-2 w-15% py-3.5 text-left  font-semibold text-gray-900">
               Einheit
             </th>
-            <th scope="col" class="pl-2 w-10% py-3.5 text-left  font-semibold text-gray-900">
+            <th scope="col" class="pl-2 w-20% py-3.5 text-left  font-semibold text-gray-900">
               Preis
             </th>
             <th scope="col" class="pl-2 rounded-tr-md whitespace-nowrap py-3.5 text-left  font-semibold text-gray-900">
@@ -75,8 +100,18 @@ fetchPdf()
       </table>
     </div>
     <div flex justify-between items-center>
-      <a ref="link" flex justify-center shadow download="hello.pdf" target="_blank" w-fit min-w-26 px-3 py-2 rounded-md bg-sky-400 text-white @click="fetchPdf"> <div v-if="pending" animate-spin w-5 h-5 bg-white i-heroicons-outline:refresh /> <div v-else font-semibold>Download</div></a>
+      <button v-if="!isSaving" :disabled="isSaving" flex justify-center shadow w-fit min-w-26 px-3 py-2 rounded-md bg-sky-400 text-white @mouseenter="fetchPdf" @click="clicked = true ">
+        <div v-if="loading" animate-spin w-5 h-5 bg-white i-heroicons-outline:refresh /> <div v-else font-semibold>
+          Download
+        </div>
+      </button>
+      <button v-else disabled flex justify-center cursor-not-allowed shadow w-fit min-w-26 px-3 py-2 rounded-md bg-gray-400 text-white>
+        <div v-if="loading" animate-spin w-5 h-5 bg-white i-heroicons-outline:refresh /> <div v-else font-semibold>
+          Download
+        </div>
+      </button>
       <div
+
         px-2 cursor-pointer
         rounded-lg shadow :class="activeOrder?.status === 'Abgeschlossen' ? 'bg-green-300 text-green-800' : 'bg-yellow-300 text-yellow-800'"
         @click="store.toggleOrderStatus()"

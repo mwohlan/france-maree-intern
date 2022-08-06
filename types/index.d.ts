@@ -9,11 +9,13 @@ export interface Supplier {
 export interface Product {
   id?: number
   description: string
-  created_at?: string
-  updated_at?: string
+  created_at: string
+  justAdded?: boolean
+  updated_at: string
   supplier?: Supplier
   supplier_id?: number | null
   price?: number | null
+  purchasing_price?: number | null
 }
 
 export interface Order {

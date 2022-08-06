@@ -23,7 +23,7 @@ const weightInput = ref<HTMLInputElement>()
 watchDebounced([selectedUnit, amount, weight], async () => {
   await store.updateOrderItem(index.value, { ...orderItem.value, updated_at: new Date().toISOString(), amount: amount.value, weight: weight.value, unit: selectedUnit.value })
   store.isSaving = false
-}, { debounce: 750 })
+}, { debounce: 1000 })
 
 watch([selectedUnit, amount, weight], async () => store.isSaving = true)
 
@@ -87,7 +87,7 @@ const orderItemId = ref<number>(orderItem.value.id ?? 0)
       </Listbox>
     </td>
     <td :class="{ 'rounded-br-md': isLastIndex }" class="px-2 py-2 relative text-gray-900">
-      <div>{{ orderItem?.price ? orderItem.price : '-' }}</div>
+      <div>{{ orderItem?.price ? `${orderItem.amount} x ${orderItem.price}€ = ${orderItem!.amount > 10 ? orderItem!.amount * orderItem.price * 0.5 : orderItem.amount * orderItem.price}€` : '-' }}</div>
     </td>
     <td :class="{ 'rounded-br-md': isLastIndex }" class="px-2 py-2 relative text-gray-900">
       <div>{{ orderItem.product?.description }}</div>

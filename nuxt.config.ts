@@ -4,22 +4,29 @@ export default defineNuxtConfig({
   modules: [
     '@vueuse/nuxt',
     '@unocss/nuxt',
-    '@pinia/nuxt',
+    ['@pinia/nuxt', { autoImports: ['storeToRefs'] }],
     '@nuxtjs/color-mode',
     '@nuxtjs/supabase',
   ],
   autoImports: {
     imports: [
-      { name: 'storeToRefs', from: 'pinia', as: 'storeToRefs' },
+      { name: 'useForm', from: 'vee-validate' },
+      { name: 'useField', from: 'vee-validate' },
+      { name: 'useIsFormValid', from: 'vee-validate' },
+      { name: '*', from: 'yup', as: 'yup' },
+
+    ],
+    dirs: [
+      'composables/**',
     ],
   },
-  ssr: true,
+  ssr: false,
   experimental: {
     reactivityTransform: false,
     viteNode: false,
   },
   unocss: {
-    preflight: true,
+    preflight: false,
   },
   colorMode: {
     classSuffix: '',
@@ -27,5 +34,13 @@ export default defineNuxtConfig({
   typescript: {
     shim: false,
   },
-
+  css: [
+    '@unocss/reset/tailwind.css',
+    'floating-vue/dist/style.css',
+  ],
+  vite: {
+    optimizeDeps: {
+      include: ['pinia'],
+    },
+  },
 })

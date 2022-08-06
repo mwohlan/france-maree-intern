@@ -3,7 +3,7 @@
     <NuxtLoadingIndicator />
     <Link rel="icon" type="image/x-icon" href="/favicon.svg" />
     <TheSidebar />
-    <div flex flex-col flex-1>
+    <div flex flex-col flex-1 h-full>
       <slot />
       <TheFooter class="min-h-5%" shrink-0 flex items-center px-8 />
     </div>
@@ -17,10 +17,10 @@ html, body , #__nuxt{
   padding: 0;
 }
 
-html.dark {
+/* html.dark {
   background: #222;
   color: white;
-}
+} */
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {

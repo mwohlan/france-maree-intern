@@ -15,7 +15,7 @@ const emit = defineEmits<{
 
 const fuse = computed(() => new Fuse(props.suppliers as Supplier[] ?? [], {
   keys: ['name'],
-  threshold: 0.5,
+  threshold: 0.4,
   ignoreLocation: true,
 }))
 

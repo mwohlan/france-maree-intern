@@ -23,7 +23,7 @@ const activeRoute = computed(() => {
   <div h-full shrink-0 px-4 py-3 border-gray-200 border-r-2>
     <div class="flex flex-col overflow-y-auto">
       <div class="flex gap-x-2 items-center">
-        <div class="h-10 w-10   i-logos-docker-icon" />
+        <img max-h-10 src="/francemaree.jpg">
         <h2 text-sky-600 font-semibold text-2xl>
           France Maree
         </h2>
