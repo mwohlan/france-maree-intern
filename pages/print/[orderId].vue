@@ -36,14 +36,22 @@ definePageMeta({
 </script>
 
 <template>
-  <div border h-fit rounded-xl border-gray-300 rounded p-3 w-full>
-    <img max-h-10 src="/francemaree.jpg">
-    <div class="flex justify-center  gap-x-4 mb-3">
-      <h2 w-fit font-bold text-xl text-sky-600>
-        Bestellung bei {{ order?.supplier?.name }}
-      </h2>
-      <div self-end font-bold text-xs text-sky-600>
-        vom {{ new Date().toLocaleString('de-DE', { dateStyle: 'full' }) }}
+  <div  h-fit w-full>
+    <div class="flex justify-between">
+      <div>
+        <div text-lg>
+          Bestellung bei Lieferrant:
+        </div>
+        <div font-bold text-gray-900 text-2xl>
+          {{ order.supplier.name }}
+          <span text-base text-gray-800> zum {{ new Date().toLocaleString('de-DE', { dateStyle: 'full' }) }}</span>
+        </div>
+      </div>
+
+      <div>
+        <img mx-auto max-h-10 src="/francemaree.jpg">
+        <div mx-auto text-sky-700 font-bold text-xl>FRANCE MARÈE Fisch Im- + Export</div>
+        <div mx-auto w-fit font-bold text-sky-700> André + Henri Fehle oHG</div>
       </div>
     </div>
 

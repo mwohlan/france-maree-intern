@@ -28,6 +28,10 @@ const fetchPdf = async () => {
         options: {
           puppeteerWaitForMethod: 'WaitForSelector',
           puppeteerWaitForValue: 'td',
+          marginTop: '.2in',
+          marginBottom: '.2in',
+          marginLeft: '.2in',
+          marginRight: '.2in',
         },
 
       },
@@ -35,6 +39,7 @@ const fetchPdf = async () => {
         Authorization: '2aac5c19-3e35-4359-8008-04a9dc76b2b0',
       },
     })
+    console.log(data.value)
     if (data.value)
       link.value = data.value.FileUrl
 
