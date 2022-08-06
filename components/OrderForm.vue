@@ -28,12 +28,6 @@ const fetchPdf = async () => {
         options: {
           puppeteerWaitForMethod: 'WaitForSelector',
           puppeteerWaitForValue: 'td',
-          width: '21cm',
-          height: '29.7cm',
-          marginTop: '.2in',
-          marginBottom: '.2in',
-          marginLeft: '.2in',
-          marginRight: '.2in',
           scale: 1,
         },
 

@@ -7,8 +7,8 @@
 </template>
 
 <style>
-#content{
+/* #content{
         width: 21cm;
         height: 29.7cm;
-   }
+   } */
 </style>
