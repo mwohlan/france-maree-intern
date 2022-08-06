@@ -1,7 +1,7 @@
 <script lang="ts" setup></script>
 
 <template>
-  <div id="content" w-full mx-auto>
+  <div id="content">
     <slot />
   </div>
 </template>

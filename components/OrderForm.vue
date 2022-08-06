@@ -23,7 +23,7 @@ const fetchPdf = async () => {
       method: 'POST',
       body: {
         url: `https://prismatic-cendol-6d0805.netlify.app/print/${activeOrder.value?.id}`,
-        inline: false,
+        inline: true,
         fileName: `Bestellung bei ${selectedSupplier.value?.name} vom ${new Date().toLocaleString('de-DE', { dateStyle: 'short' })}.pdf`,
         options: {
           puppeteerWaitForMethod: 'WaitForSelector',
@@ -50,14 +50,15 @@ const fetchPdf = async () => {
 
 watchEffect(() => {
   if (clicked.value && !refetchNeeded.value) {
-    const a = document.createElement('a')
-    a.style.display = 'none'
-    a.href = link.value
-    // the filename you want
-    document.body.appendChild(a)
-    a.click()
-    clicked.value = false
-    a.remove()
+    // const a = document.createElement('a')
+    // a.style.display = 'none'
+    // a.href = link.value
+    // a.target = '_blank'
+    // document.body.appendChild(a)
+    // a.click()
+    // clicked.value = false
+    // a.remove()
+    window.open(link.value, '_blank', 'popup,width=600,height=800')
   }
 },
 
