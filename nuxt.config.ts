@@ -38,11 +38,11 @@ export default defineNuxtConfig({
     '@unocss/reset/tailwind.css',
     'floating-vue/dist/style.css',
   ],
-  vite: {
-    optimizeDeps: {
-      include: ['pinia'],
-    },
-  },
+  // vite: {
+  //   optimizeDeps: {
+  //     include: ['pinia'],
+  //   },
+  // },
   hooks: {
     'vite:extendConfig': function (config: any, { isServer }: any) {
       if (isServer) {
