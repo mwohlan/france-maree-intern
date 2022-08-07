@@ -36,7 +36,7 @@ definePageMeta({
 </script>
 
 <template>
-  <div  h-fit w-full>
+  <div font-mulish h-fit w-full>
     <div class="flex justify-between">
       <div>
         <div text-lg>
