@@ -43,4 +43,13 @@ export default defineNuxtConfig({
       include: ['pinia'],
     },
   },
+  hooks: {
+    'vite:extendConfig': function (config: any, { isServer }: any) {
+      if (isServer) {
+        // Workaround for netlify issue
+        // https://github.com/nuxt/framework/issues/6204
+        config.build.rollupOptions.output.inlineDynamicImports = true
+      }
+    },
+  },
 })
