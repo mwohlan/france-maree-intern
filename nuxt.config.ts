@@ -20,7 +20,7 @@ export default defineNuxtConfig({
       'composables/**',
     ],
   },
-  ssr: false,
+  ssr: true,
   experimental: {
     reactivityTransform: false,
     viteNode: false,

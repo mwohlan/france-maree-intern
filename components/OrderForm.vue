@@ -5,9 +5,10 @@ const store = useOrderStore()
 const client = useSupabaseClient()
 const { orderItems, selectedSupplier, activeOrder, isSaving } = storeToRefs(store)
 const pending = ref(false)
-const clicked = ref(false)
+const download = ref(false)
+const print = ref(false)
 const localOrderItems = ref<OrderItem[]>([])
-const loading = computed(() => pending.value && clicked.value)
+const loading = computed(() => pending.value && (download.value || print.value))
 if (activeOrder.value?.id)
   store.getOrderItems()
 
@@ -15,7 +16,7 @@ const link = ref<string>()
 
 const refetchNeeded = computed(() => !(JSON.stringify(localOrderItems.value) === JSON.stringify(orderItems.value)))
 const fetchPdf = async () => {
-  if (!clicked.value && refetchNeeded.value) {
+  if ((!download.value || !print.value) && refetchNeeded.value) {
     pending.value = true
     const { data, error } = await useFetch('https://v2.api2pdf.com/chrome/pdf/url', {
       initialCache: false,
@@ -23,15 +24,15 @@ const fetchPdf = async () => {
       method: 'POST',
       body: {
         url: `https://prismatic-cendol-6d0805.netlify.app/print/${activeOrder.value?.id}`,
-        inline: true,
+        inline: false,
         fileName: `Bestellung bei ${selectedSupplier.value?.name} vom ${new Date().toLocaleString('de-DE', { dateStyle: 'short' })}.pdf`,
         options: {
           puppeteerWaitForMethod: 'WaitForSelector',
-          puppeteerWaitForValue: 'td',
-          marginTop: '.0in',
-          marginBottom: '.0in',
-          marginLeft: '.0in',
-          marginRight: '.0in',
+          puppeteerWaitForValue: 'img',
+          marginTop: '.2in',
+          marginBottom: '.2in',
+          marginLeft: '.2in',
+          marginRight: '.2in',
           scale: 1,
         },
 
@@ -50,18 +51,19 @@ const fetchPdf = async () => {
 }
 
 watchEffect(() => {
-  if (clicked.value && !refetchNeeded.value) {
-    // const a = document.createElement('a')
-    // a.style.display = 'none'
-    // a.href = link.value
+  if (download.value && !refetchNeeded.value) {
+    const a = document.createElement('a')
+    a.style.display = 'none'
+    a.href = link.value
     // a.target = '_blank'
-    // document.body.appendChild(a)
-    // a.click()
-    // clicked.value = false
-    // a.remove()
-    console.log('object')
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    download.value = false
+  }
+  if (print.value && !refetchNeeded.value) {
     window.open(link.value, '_blank', 'popup,width=600,height=800')
-    clicked.value = false
+    print.value = false
   }
 },
 
@@ -109,16 +111,28 @@ watch(() => activeOrder.value?.id, () => {
       </table>
     </div>
     <div flex justify-between items-center>
-      <button v-if="!isSaving" :disabled="isSaving" flex justify-center shadow w-fit min-w-26 px-3 py-2 rounded-md bg-sky-400 text-white @mouseenter="fetchPdf" @click="clicked = true ">
-        <div v-if="loading" animate-spin w-5 h-5 bg-white i-heroicons-outline:refresh /> <div v-else font-semibold>
-          Download
-        </div>
-      </button>
-      <button v-else disabled flex justify-center cursor-not-allowed shadow w-fit min-w-26 px-3 py-2 rounded-md bg-gray-400 text-white>
-        <div v-if="loading" animate-spin w-5 h-5 bg-white i-heroicons-outline:refresh /> <div v-else font-semibold>
-          Download
-        </div>
-      </button>
+      <div flex items-center gap-x-4>
+        <button v-if="!isSaving" :disabled="isSaving" flex justify-center shadow w-fit min-w-26 px-3 py-2 rounded-md bg-sky-400 text-white @mouseenter="fetchPdf" @click="download = true ">
+          <div v-if="loading && download" animate-spin w-5 h-5 bg-white i-heroicons-outline:refresh /> <div v-else font-semibold>
+            Download
+          </div>
+        </button>
+        <button v-else-if="isSaving && download" disabled flex justify-center cursor-not-allowed shadow w-fit min-w-26 px-3 py-2 rounded-md bg-gray-400 text-white>
+          <div v-if="loading && download" animate-spin w-5 h-5 bg-white i-heroicons-outline:refresh /> <div v-else font-semibold>
+            Warten..
+          </div>
+        </button>
+        <button v-if="!isSaving" :disabled="isSaving" flex justify-center shadow w-fit min-w-26 px-3 py-2 rounded-md bg-sky-400 text-white @mouseenter="fetchPdf" @click="print = true ">
+          <div v-if="loading && print " animate-spin w-5 h-5 bg-white i-heroicons-outline:refresh /> <div v-else font-semibold>
+            Drucken
+          </div>
+        </button>
+        <button v-else-if="isSaving && print" flex justify-center cursor-not-allowed shadow w-fit min-w-26 px-3 py-2 rounded-md bg-gray-400 text-white>
+          <div v-if="loading && print" animate-spin w-5 h-5 bg-white i-heroicons-outline:refresh /> <div v-else font-semibold>
+            Warten..
+          </div>
+        </button>
+      </div>
       <div
 
         px-2 cursor-pointer
