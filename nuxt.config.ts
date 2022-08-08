@@ -1,3 +1,4 @@
+import { resolve } from 'node:path'
 import { defineNuxtConfig } from 'nuxt'
 
 export default defineNuxtConfig({
@@ -53,6 +54,6 @@ export default defineNuxtConfig({
     },
   },
   alias: {
-    pinia: 'pinia',
+    'pinia/dist/pinia.mjs': resolve('./node_modules/pinia/dist/pinia.mjs'),
   },
 })
