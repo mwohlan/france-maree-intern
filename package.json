@@ -11,7 +11,7 @@
     "@antfu/eslint-config": "^0.25.2",
     "@formkit/auto-animate": "^1.0.0-beta.1",
     "@headlessui/vue": "^1.6.7",
-    "@iconify/json": "^2.1.87",
+    "@iconify/json": "^2.1.88",
     "@nuxtjs/color-mode": "^3.1.4",
     "@nuxtjs/supabase": "^0.1.19",
     "@unocss/nuxt": "^0.45.5",
@@ -24,7 +24,7 @@
     "pinia": "2.0.17",
     "@pinia/nuxt": "^0.3.1",
     "typescript": "^4.7.4",
-    "vee-validate": "^4.6.2",
+    "vee-validate": "^4.6.4",
     "yup": "0.32.11",
     "floating-vue": "2.0.0-beta.19"
   }

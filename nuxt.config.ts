@@ -23,7 +23,7 @@ export default defineNuxtConfig({
   ssr: true,
   experimental: {
     reactivityTransform: false,
-    viteNode: true,
+    viteNode: false,
   },
   unocss: {
     preflight: false,
