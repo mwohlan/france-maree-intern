@@ -52,4 +52,7 @@ export default defineNuxtConfig({
       }
     },
   },
+  alias: {
+    pinia: 'pinia',
+  },
 })
