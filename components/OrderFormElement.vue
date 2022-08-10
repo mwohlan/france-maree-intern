@@ -14,7 +14,8 @@ const store = useOrderStore()
 
 const units: ValueOf<Unit>[] = ['kg', 'Anzahl', 'Kiste']
 
-const selectedUnit = ref<ValueOf<Unit>>(orderItem.value.unit ?? 'Anzahl')
+
+const selectedUnit = ref<ValueOf<Unit>>(orderItem.value.unit ?? orderItem.value.product.prefered_unit ?? 'Anzahl')
 
 const amount = ref(orderItem.value.amount ?? 1)
 const weight = ref(orderItem.value.weight)

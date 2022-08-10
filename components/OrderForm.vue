@@ -10,8 +10,9 @@ const print = ref(false)
 const localOrderItems = ref<OrderItem[]>([])
 const loading = computed(() => pending.value && (download.value || print.value))
 if (!activeOrder.value?.id)
-  store.setByOrderId(useRoute().params.id)
+  await store.setByOrderId(useRoute().params.id)
 
+console.log(selectedSupplier.value)
 const link = ref<string>()
 
 const refetchNeeded = computed(() => !(JSON.stringify(localOrderItems.value) === JSON.stringify(orderItems.value)))

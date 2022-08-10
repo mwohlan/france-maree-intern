@@ -192,7 +192,7 @@ watch(() => props.selectedProduct.supplier, () => {
   selectedSupplier.value = props.selectedProduct.supplier ?? noSupplier
 })
 
-watch([() => props.selectedProduct.price, () => props.selectedProduct.description, () => props.selectedProduct.supplier, () => props.selectedProduct.purchasing_price], ([newPrice, newDescription, newSupplier, newPurchasingPrice]) => {
+watch([() => props.selectedProduct.price, () => props.selectedProduct.description, () => props.selectedProduct.supplier, () => props.selectedProduct.purchasing_price, () => props.selectedProduct.prefered_unit], ([newPrice, newDescription, newSupplier, newPurchasingPrice, newPreferedUnit]) => {
   setFieldValue('description', newDescription)
   setFieldValue('price', newPrice ?? null)
   setFieldValue('supplier.name', newSupplier?.name)

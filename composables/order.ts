@@ -172,7 +172,7 @@ export const useOrderStore = defineStore('order', () => {
   }
 
   return {
-    selectedSupplier: skipHydrate(selectedSupplier),
+    selectedSupplier,
     orderItems,
     activeOrder,
     resetSelectedSupplier,
