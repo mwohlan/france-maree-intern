@@ -1,4 +1,4 @@
-import { acceptHMRUpdate, defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore, skipHydrate } from 'pinia'
 import type { Order, OrderHistory, OrderItem, Product, Supplier } from '~~/types'
 
 export const useOrderStore = defineStore('order', () => {
@@ -12,7 +12,14 @@ export const useOrderStore = defineStore('order', () => {
 
   const isSaving = ref(false)
 
-
+  async function setByOrderId(orderId: number) {
+    const query = client.from<Order>('order').select('*,supplier(*)').eq('id', orderId)
+    const data = await useSupabaseFetch(query, 'OrderStore: Failed to fetch order')
+    console.log(data)
+    selectedSupplier.value = data[0].supplier
+    activeOrder.value = data[0]
+    await getOrderItems()
+  }
   function resetSelectedSupplier() {
     selectedSupplier.value = undefined
   }
@@ -62,23 +69,29 @@ export const useOrderStore = defineStore('order', () => {
     }
   }
 
+  
   async function getOrderItems() {
     try {
       const { data, error } = await client.from<OrderItem>('order_item').select('*,product(*)')
-        .eq('order_id', activeOrder.value?.id)
-
+      .eq('order_id', activeOrder.value?.id)
+      
       console.log(data)
-
+      
       if (error)
-        throw error
+      throw error
       if (data)
-        orderItems.value = data
+      orderItems.value = data
     }
     catch (error) {
       console.error('OrderStore: getOrderItems failed', error)
     }
   }
-
+  
+  watch(activeOrder, () => {
+    if (activeOrder.value) {
+      getOrderItems()
+    }
+  })
   const transFormProduct = (product: Product, withProduct: boolean): OrderItem => {
     if (withProduct) {
       return {
@@ -159,7 +172,7 @@ export const useOrderStore = defineStore('order', () => {
   }
 
   return {
-    selectedSupplier,
+    selectedSupplier: skipHydrate(selectedSupplier),
     orderItems,
     activeOrder,
     resetSelectedSupplier,
@@ -172,6 +185,7 @@ export const useOrderStore = defineStore('order', () => {
     getOrderItems,
     selectOrder,
     toggleOrderStatus,
+    setByOrderId,
     isSaving,
   }
 })

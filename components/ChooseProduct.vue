@@ -6,7 +6,12 @@ const store = useOrderStore()
 
 const { selectedSupplier } = storeToRefs(store)
 
+if (!selectedSupplier.value) {
+ await store.setByOrderId(useRoute().params.id)
+}
+
 const client = useSupabaseClient()
+
 
 const { data: products } = await useAsyncData(`products${selectedSupplier.value?.id}`, async () => {
   try {
@@ -20,7 +25,7 @@ const { data: products } = await useAsyncData(`products${selectedSupplier.value?
   }
 }, { initialCache: false })
 
-const productFuse = new Fuse(products.value as Product[], {
+const productFuse = new Fuse(products.value ?? [] as Product[], {
   keys: ['description'],
   threshold: 0.5,
   ignoreLocation: true,

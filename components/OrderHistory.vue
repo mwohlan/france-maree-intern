@@ -30,11 +30,11 @@ const { data: orders } = await useAsyncData('orders', async () => {
           v-for="order in orders" :key="order.id" border-1 space-y-2 cursor-pointer rounded-md border-gray-300 hover:bg-gray-200
           px-2 py-4
         >
-          <NuxtLink :to="`Bestellungen/${order.id}`" @click="store.selectOrder(order)">
+          <NuxtLink space-y-2 :to="`Bestellungen/${order.id}`" @click="store.selectOrder(order)">
             <div flex justify-between items-center gap-x-6>
               <div>{{ order.name }}</div>
               <div shadow bg-gray-200 px-2 rounded-md text-gray-600 font-semibold text-sm>
-                {{ order.orderitemcount }} Positionen
+                {{ order.orderitemcount }} Artikel
               </div>
             </div>
             <div text-gray-600 text-sm flex justify-between>

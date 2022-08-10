@@ -9,8 +9,8 @@ const download = ref(false)
 const print = ref(false)
 const localOrderItems = ref<OrderItem[]>([])
 const loading = computed(() => pending.value && (download.value || print.value))
-if (activeOrder.value?.id)
-  store.getOrderItems()
+if (!activeOrder.value?.id)
+  store.setByOrderId(useRoute().params.id)
 
 const link = ref<string>()
 
@@ -117,7 +117,7 @@ watch(() => activeOrder.value?.id, () => {
             Download
           </div>
         </button>
-        <button v-else-if="isSaving && download" disabled flex justify-center cursor-not-allowed shadow w-fit min-w-26 px-3 py-2 rounded-md bg-gray-400 text-white>
+        <button v-else disabled flex justify-center cursor-not-allowed shadow w-fit min-w-26 px-3 py-2 rounded-md bg-gray-400 text-white>
           <div v-if="loading && download" animate-spin w-5 h-5 bg-white i-heroicons-outline:refresh /> <div v-else font-semibold>
             Warten..
           </div>
@@ -127,7 +127,7 @@ watch(() => activeOrder.value?.id, () => {
             Drucken
           </div>
         </button>
-        <button v-else-if="isSaving && print" flex justify-center cursor-not-allowed shadow w-fit min-w-26 px-3 py-2 rounded-md bg-gray-400 text-white>
+        <button v-else flex justify-center cursor-not-allowed shadow w-fit min-w-26 px-3 py-2 rounded-md bg-gray-400 text-white>
           <div v-if="loading && print" animate-spin w-5 h-5 bg-white i-heroicons-outline:refresh /> <div v-else font-semibold>
             Warten..
           </div>

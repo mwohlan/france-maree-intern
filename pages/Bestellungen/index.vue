@@ -1,7 +1,4 @@
 <script lang="ts" setup>
-const store = useOrderStore()
-const { selectedSupplier } = storeToRefs(store)
-
 definePageMeta({
   pageTransition: usePageTransition(),
 })

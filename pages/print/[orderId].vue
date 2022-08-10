@@ -17,7 +17,7 @@ const { data: orderItems } = await useAsyncData('order-items', async () => {
   catch (error) {
     console.error('Print: getOrderItems failed', error)
   }
-})
+},{ initialCache: false })
 const { data: order } = await useAsyncData('order', async () => {
   try {
     const { data, error } = await client.from<Order>('order').select('*,supplier(*)').eq('id', route.params.orderId as string).single()
@@ -28,7 +28,7 @@ const { data: order } = await useAsyncData('order', async () => {
   catch (error) {
     console.error('Print: Fetching Supplier Failed', error)
   }
-})
+},{ initialCache: false })
 
 definePageMeta({
   layout: 'print',
