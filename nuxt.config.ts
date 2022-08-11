@@ -53,7 +53,7 @@ export default defineNuxtConfig({
   //     }
   //   },
   // },
-  // alias: {
-  //   'pinia/dist/pinia.mjs': resolve('./node_modules/pinia/dist/pinia.mjs'),
-  // },
+  alias: {
+    'pinia/dist/pinia.mjs': resolve('./node_modules/pinia/dist/pinia.mjs'),
+  },
 })
