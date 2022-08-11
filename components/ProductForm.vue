@@ -92,7 +92,7 @@ useField<number>('price')
 useField<Supplier>('supplier.name')
 useField<number>('purchasingPrice')
 
-debouncedWatch([() => props.selectedProduct?.description, () => props.selectedProduct?.price, () => props.selectedProduct?.id, () => props.selectedProduct?.supplier, () => props.selectedProduct.purchasing_price], async ([newDescription, newPrice, newId, newSupplier, newPurchasingPrice], [oldDescription, oldPrice, oldId, oldSupplier]) => {
+debouncedWatch([() => props.selectedProduct?.description, () => props.selectedProduct?.price, () => props.selectedProduct?.id, () => props.selectedProduct?.supplier, () => props.selectedProduct.purchasing_price, () => props.selectedProduct.prefered_unit.value], async ([newDescription, newPrice, newId, newSupplier, newPurchasingPrice, newPreferedUnit], [oldDescription, oldPrice, oldId, oldSupplier]) => {
   try {
     if (newId && meta.value.valid) {
       const { data: product, error } = await client.from<Product>('product').upsert({
@@ -101,6 +101,7 @@ debouncedWatch([() => props.selectedProduct?.description, () => props.selectedPr
         price: newPrice || null,
         purchasing_price: newPurchasingPrice || null,
         id: props.selectedProduct.id,
+        prefered_unit: newPreferedUnit
       }).single()
       if (error)
         throw error
@@ -111,6 +112,7 @@ debouncedWatch([() => props.selectedProduct?.description, () => props.selectedPr
         supplier_id: newSupplier?.id,
         price: newPrice,
         purchasing_price: newPurchasingPrice,
+        prefered_unit: newPreferedUnit
       }).single()
       if (product)
         emit('update:selectedProduct', { ...product, supplier: newSupplier, justAdded: true })
@@ -134,6 +136,7 @@ const noSupplier: Supplier = {
 }
 const selectedSupplier = ref<Supplier>(props.selectedProduct?.supplier || noSupplier)
 const supplierFilter = ref<string>('')
+const preferedUnit = ref(props.selectedProduct?.prefered_unit ?? { value: 'keine Einheit' })
 
 const fuse = new Fuse(props.suppliers ?? [], {
   keys: ['name'],
@@ -192,7 +195,7 @@ watch(() => props.selectedProduct.supplier, () => {
   selectedSupplier.value = props.selectedProduct.supplier ?? noSupplier
 })
 
-watch([() => props.selectedProduct.price, () => props.selectedProduct.description, () => props.selectedProduct.supplier, () => props.selectedProduct.purchasing_price, () => props.selectedProduct.prefered_unit], ([newPrice, newDescription, newSupplier, newPurchasingPrice, newPreferedUnit]) => {
+watch([() => props.selectedProduct.price, () => props.selectedProduct.description, () => props.selectedProduct.supplier, () => props.selectedProduct.purchasing_price, () => props.selectedProduct.prefered_unit.value], ([newPrice, newDescription, newSupplier, newPurchasingPrice, newPreferedUnit]) => {
   setFieldValue('description', newDescription)
   setFieldValue('price', newPrice ?? null)
   setFieldValue('supplier.name', newSupplier?.name)
@@ -214,7 +217,6 @@ const deleteProduct = async () => {
   }
 }
 
-const preferedUnit = ref({value: 'keine Einheit'})
 </script>
 
 <template>
@@ -232,14 +234,11 @@ const preferedUnit = ref({value: 'keine Einheit'})
       <div flex>
         <div v-auto-animate class="space-y-6xl min-w-1/3 p-4">
           <div relative @click="descriptionInput?.focus()">
-            <input
-              ref="descriptionInput" :value="props.selectedProduct?.description" type="text" placeholder="a"
+            <input ref="descriptionInput" :value="props.selectedProduct?.description" type="text" placeholder="a"
               class="peer transition-all relative w-full placeholder-transparent outline-none focus:outline-none border border-slate-200 focus:border-sky-400 rounded-md p-4 autofill:bg-white invalid:border-red-500 invalid:text-red-600 disabled:cursor-not-allowed"
-              @change="updatedDescription($event)"
-            >
+              @change="updatedDescription($event)">
             <label
-              class="absolute bg-light-50 z-[0] left-1 px-2 -top-2 text-gray-600 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base !peer-focus:left-1 !peer-focus:-top-2 !peer-focus:text-gray-600 !peer-focus:text-sm "
-            >
+              class="absolute bg-light-50 z-[0] left-1 px-2 -top-2 text-gray-600 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base !peer-focus:left-1 !peer-focus:-top-2 !peer-focus:text-gray-600 !peer-focus:text-sm ">
               Beschreibung
             </label>
           </div>
@@ -249,14 +248,11 @@ const preferedUnit = ref({value: 'keine Einheit'})
           </div>
 
           <div relative @click="priceInput?.focus()">
-            <input
-              ref="priceInput" :value="props.selectedProduct?.price" step=".01" type="number" placeholder="a"
+            <input ref="priceInput" :value="props.selectedProduct?.price" step=".01" type="number" placeholder="a"
               class="peer font-semibold appearance-none transition-all relative w-full placeholder-transparent outline-none focus:outline-none border border-slate-200 focus:border-sky-400 rounded-md p-4 autofill:bg-white invalid:border-red-500 invalid:text-red-600 disabled:cursor-not-allowed"
-              @change="updatedPrice($event.target)"
-            >
+              @change="updatedPrice($event.target)">
             <label
-              class="absolute bg-light-50 z-[1] left-1 px-2 -top-2 text-gray-600 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base !peer-focus:left-1 !peer-focus:-top-2 !peer-focus:text-gray-600 !peer-focus:text-sm "
-            >
+              class="absolute bg-light-50 z-[1] left-1 px-2 -top-2 text-gray-600 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base !peer-focus:left-1 !peer-focus:-top-2 !peer-focus:text-gray-600 !peer-focus:text-sm ">
               VK Preis in €
             </label>
           </div>
@@ -266,14 +262,12 @@ const preferedUnit = ref({value: 'keine Einheit'})
           </div>
 
           <div relative @click="purchasingPriceInput?.focus()">
-            <input
-              ref="purchasingPriceInput" :value="props.selectedProduct?.purchasing_price" step=".01" type="number" placeholder="a"
+            <input ref="purchasingPriceInput" :value="props.selectedProduct?.purchasing_price" step=".01" type="number"
+              placeholder="a"
               class="peer font-semibold appearance-none transition-all relative w-full placeholder-transparent outline-none focus:outline-none border border-slate-200 focus:border-sky-400 rounded-md p-4 autofill:bg-white invalid:border-red-500 invalid:text-red-600 disabled:cursor-not-allowed"
-              @change="updatedPurchasingPrice($event)"
-            >
+              @change="updatedPurchasingPrice($event)">
             <label
-              class="absolute bg-light-50 z-[1] left-1 px-2 -top-2 text-gray-600 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base !peer-focus:left-1 !peer-focus:-top-2 !peer-focus:text-gray-600 !peer-focus:text-sm "
-            >
+              class="absolute bg-light-50 z-[1] left-1 px-2 -top-2 text-gray-600 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base !peer-focus:left-1 !peer-focus:-top-2 !peer-focus:text-gray-600 !peer-focus:text-sm ">
               EK Preis in €
             </label>
           </div>
@@ -285,63 +279,45 @@ const preferedUnit = ref({value: 'keine Einheit'})
           <div relative>
             <Combobox v-model="selectedSupplier" as="div">
               <ComboboxButton w-full>
-                <ComboboxInput
-                  placeholder="Lieferant"
+                <ComboboxInput placeholder="Lieferant"
                   class="peer font-semibold appearance-none transition-all relative w-full placeholder-transparent outline-none focus:outline-none border border-slate-200 focus:border-sky-400 rounded-md p-4 autofill:bg-white invalid:border-red-500 invalid:text-red-600 disabled:cursor-not-allowed"
-                  :display-value="() => selectedSupplier?.name" @input="supplierFilter = $event.target.value"
-                />
+                  :display-value="() => selectedSupplier?.name" @input="supplierFilter = $event.target.value" />
                 <ComboboxLabel
-                  class="absolute bg-light-50 z-[1] left-1 px-2 -top-2 text-gray-600 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base !peer-focus:left-1 !peer-focus:-top-2 !peer-focus:text-gray-600 !peer-focus:text-sm "
-                >
+                  class="absolute bg-light-50 z-[1] left-1 px-2 -top-2 text-gray-600 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base !peer-focus:left-1 !peer-focus:-top-2 !peer-focus:text-gray-600 !peer-focus:text-sm ">
                   Lieferant auswählen
                 </ComboboxLabel>
               </ComboboxButton>
-              <TransitionRoot
-                leave="ease-in duration-100" leave-from="opacity-100" leave-to="opacity-0"
-                @after-leave="supplierFilter = ''"
-              >
+              <TransitionRoot leave="ease-in duration-100" leave-from="opacity-100" leave-to="opacity-0"
+                @after-leave="supplierFilter = ''">
                 <ComboboxOptions
-                  class="absolute z-1 mt-1 max-h-60 w-full overflow-auto rounded-md bg-light-50 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                >
+                  class="absolute z-1 mt-1 max-h-60 w-full overflow-auto rounded-md bg-light-50 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                   <ComboboxOption v-slot="{ selected, active }" as="template" :value="noSupplier">
-                    <li
-                      class="relative cursor-default select-none py-2 pl-10 pr-4" :class="{
-                        'bg-sky-600 text-white': active,
-                        'text-gray-900': !active,
-                      }"
-                    >
+                    <li class="relative cursor-default select-none py-2 pl-10 pr-4" :class="{
+                      'bg-sky-600 text-white': active,
+                      'text-gray-900': !active,
+                    }">
                       <span class="block truncate" :class="{ 'font-medium': selected, 'font-normal': !selected }">
                         {{ noSupplier.name }}
                       </span>
-                      <span
-                        v-if="selected" class="absolute inset-y-0 left-0 flex items-center pl-3"
-                        :class="{ 'text-white': active, 'text-sky-600': !active }"
-                      />
+                      <span v-if="selected" class="absolute inset-y-0 left-0 flex items-center pl-3"
+                        :class="{ 'text-white': active, 'text-sky-600': !active }" />
                     </li>
                   </ComboboxOption>
-                  <div
-                    v-if="filteredSuppliers.length === 0 && supplierFilter !== ''"
-                    class="relative cursor-default select-none py-2 px-4 text-gray-700"
-                  >
+                  <div v-if="filteredSuppliers.length === 0 && supplierFilter !== ''"
+                    class="relative cursor-default select-none py-2 px-4 text-gray-700">
                     Nichts gefunden
                   </div>
-                  <ComboboxOption
-                    v-for="filteredSupplier in filteredSuppliers" :key="filteredSupplier.id"
-                    v-slot="{ selected, active }" as="template" :value="filteredSupplier"
-                  >
-                    <li
-                      class="relative cursor-default select-none py-2 pl-10 pr-4" :class="{
-                        'bg-sky-600 text-white': active,
-                        'text-gray-900': !active,
-                      }"
-                    >
+                  <ComboboxOption v-for="filteredSupplier in filteredSuppliers" :key="filteredSupplier.id"
+                    v-slot="{ selected, active }" as="template" :value="filteredSupplier">
+                    <li class="relative cursor-default select-none py-2 pl-10 pr-4" :class="{
+                      'bg-sky-600 text-white': active,
+                      'text-gray-900': !active,
+                    }">
                       <span class="block truncate" :class="{ 'font-medium': selected, 'font-normal': !selected }">
                         {{ filteredSupplier.name }}
                       </span>
-                      <span
-                        v-if="selected" class="absolute inset-y-0 left-0 flex items-center pl-3"
-                        :class="{ 'text-white': active, 'text-sky-600': !active }"
-                      />
+                      <span v-if="selected" class="absolute inset-y-0 left-0 flex items-center pl-3"
+                        :class="{ 'text-white': active, 'text-sky-600': !active }" />
                     </li>
                   </ComboboxOption>
                 </ComboboxOptions>
@@ -354,40 +330,28 @@ const preferedUnit = ref({value: 'keine Einheit'})
           <div relative>
             <Combobox v-model="preferedUnit" as="div">
               <ComboboxButton w-full>
-                <ComboboxInput
-                  placeholder="Lieferant"
+                <ComboboxInput placeholder="Lieferant"
                   class="peer font-semibold appearance-none transition-all relative w-full placeholder-transparent outline-none focus:outline-none border border-slate-200 focus:border-sky-400 rounded-md p-4 autofill:bg-white invalid:border-red-500 invalid:text-red-600 disabled:cursor-not-allowed"
-                  :display-value="() => preferedUnit?.value"
-                />
+                  :display-value="() => preferedUnit?.value" />
                 <ComboboxLabel
-                  class="absolute bg-light-50 z-[1] left-1 px-2 -top-2 text-gray-600 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base !peer-focus:left-1 !peer-focus:-top-2 !peer-focus:text-gray-600 !peer-focus:text-sm "
-                >
+                  class="absolute bg-light-50 z-[1] left-1 px-2 -top-2 text-gray-600 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base !peer-focus:left-1 !peer-focus:-top-2 !peer-focus:text-gray-600 !peer-focus:text-sm ">
                   Bevorzugte Einheit auswählen
                 </ComboboxLabel>
               </ComboboxButton>
-              <TransitionRoot
-                leave="ease-in duration-100" leave-from="opacity-100" leave-to="opacity-0"
-              >
+              <TransitionRoot leave="ease-in duration-100" leave-from="opacity-100" leave-to="opacity-0">
                 <ComboboxOptions
-                  class="absolute z-1 mt-1 max-h-60 w-full overflow-auto rounded-md bg-light-50 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                >
-                  <ComboboxOption
-                    v-for="unit in units" :key="unit"
-                    v-slot="{ selected, active }" as="template" :value="unit"
-                  >
-                    <li
-                      class="relative cursor-default select-none py-2 pl-10 pr-4" :class="{
-                        'bg-sky-600 text-white': active,
-                        'text-gray-900': !active,
-                      }"
-                    >
+                  class="absolute z-1 mt-1 max-h-60 w-full overflow-auto rounded-md bg-light-50 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                  <ComboboxOption v-for="unit in units" :key="unit" v-slot="{ selected, active }" as="template"
+                    :value="unit">
+                    <li class="relative cursor-default select-none py-2 pl-10 pr-4" :class="{
+                      'bg-sky-600 text-white': active,
+                      'text-gray-900': !active,
+                    }">
                       <span class="block truncate" :class="{ 'font-medium': selected, 'font-normal': !selected }">
                         {{ unit.value }}
                       </span>
-                      <span
-                        v-if="selected" class="absolute inset-y-0 left-0 flex items-center pl-3"
-                        :class="{ 'text-white': active, 'text-sky-600': !active }"
-                      />
+                      <span v-if="selected" class="absolute inset-y-0 left-0 flex items-center pl-3"
+                        :class="{ 'text-white': active, 'text-sky-600': !active }" />
                     </li>
                   </ComboboxOption>
                 </ComboboxOptions>
@@ -398,26 +362,21 @@ const preferedUnit = ref({value: 'keine Einheit'})
             {{ errors['supplier.name'] }}
           </div>
           <div flex items-center justify-between>
-            <button
-              v-if="selectedProduct?.id"
+            <button v-if="selectedProduct?.id"
               class="px-3 py-1 bg-red-200 text-white flex items-center rounded-md shadow-md gap-x-2"
-              @click="deleteProduct"
-            >
+              @click="deleteProduct">
               <div bg-red-500 i-ic:round-delete />
               <div font-semibold text-red-500>
                 Löschen
               </div>
             </button>
             <div v-if="isSaving" animate-spin w-7 h-7 bg-sky-400 i-heroicons-outline:refresh />
-            <div
-              v-else-if="props.selectedProduct?.id && !isSaving"
-              w-7 h-7 bg-sky-400 i-heroicons-outline:badge-check
+            <div v-else-if="props.selectedProduct?.id && !isSaving" w-7 h-7 bg-sky-400 i-heroicons-outline:badge-check
               @click="resetForm({
                 values: {
                   description: '',
                 },
-              })"
-            />
+              })" />
           </div>
         </div>
         <div>
